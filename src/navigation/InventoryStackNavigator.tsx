@@ -39,11 +39,7 @@ export function InventoryStackNavigator() {
         component={AddPurchaseScreen}
         options={{ title: "Add Purchase" }}
       />
-      <Stack.Screen
-        name="AddSale"
-        component={AddSaleScreen}
-        options={{ title: "Add Sale" }}
-      />
+      <Stack.Screen name="AddSale" component={AddSaleScreen} options={{ title: "Add Sale" }} />
     </Stack.Navigator>
   );
 }

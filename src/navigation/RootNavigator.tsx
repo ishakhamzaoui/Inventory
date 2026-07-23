@@ -37,10 +37,7 @@ export function RootNavigator() {
         ),
       })}
     >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-      />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen
         name="Inventory"
         component={InventoryStackNavigator}
@@ -51,14 +48,8 @@ export function RootNavigator() {
         component={StockHistoryScreen}
         options={{ title: "History" }}
       />
-      <Tab.Screen
-        name="Reports"
-        component={ReportsScreen}
-      />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-      />
+      <Tab.Screen name="Reports" component={ReportsScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
 }
