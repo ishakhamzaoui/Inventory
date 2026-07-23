@@ -6,6 +6,7 @@ export type InventoryStackParamList = {
   AddEditBatch: { batchId?: string };
   AddPurchase: { batchId?: string };
   AddSale: { batchId?: string };
+  AddAdjustment: { batchId?: string };
 };
 
 export type RootTabParamList = {

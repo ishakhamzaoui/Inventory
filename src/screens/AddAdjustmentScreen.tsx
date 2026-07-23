@@ -14,16 +14,17 @@ import { BatchPicker } from "@/components/BatchPicker";
 import { colors, spacing } from "@/constants/theme";
 import { Batch, MovementUnit } from "@/types";
 import { getServices } from "@/services/container";
+import { InsufficientStockError } from "@/utils/errors";
 import {
+  AdjustmentFormValues,
+  adjustmentFormSchema,
   parseFormDate,
-  purchaseFormSchema,
-  PurchaseFormValues,
   todayStr,
 } from "@/utils/movementSchema";
 import type { InventoryStackParamList } from "@/navigation/types";
 
-type Nav = NativeStackNavigationProp<InventoryStackParamList, "AddPurchase">;
-type Route = { params: InventoryStackParamList["AddPurchase"] };
+type Nav = NativeStackNavigationProp<InventoryStackParamList, "AddAdjustment">;
+type Route = { params: InventoryStackParamList["AddAdjustment"] };
 
 const UNIT_OPTIONS: { label: string; value: MovementUnit }[] = [
   { label: "Tube", value: "tube" },
@@ -31,7 +32,12 @@ const UNIT_OPTIONS: { label: string; value: MovementUnit }[] = [
   { label: "Kg", value: "kg" },
 ];
 
-export function AddPurchaseScreen() {
+const DIRECTION_OPTIONS: { label: string; value: "increase" | "decrease" }[] = [
+  { label: "Increase", value: "increase" },
+  { label: "Decrease", value: "decrease" },
+];
+
+export function AddAdjustmentScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute() as Route;
 
@@ -45,9 +51,15 @@ export function AddPurchaseScreen() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<PurchaseFormValues>({
-    resolver: zodResolver(purchaseFormSchema),
-    defaultValues: { quantity: 0, unit: "tube", unitPrice: 0, date: todayStr() },
+  } = useForm<AdjustmentFormValues>({
+    resolver: zodResolver(adjustmentFormSchema),
+    defaultValues: {
+      quantity: 0,
+      unit: "tube",
+      direction: "increase",
+      reason: "",
+      date: todayStr(),
+    },
   });
 
   useEffect(() => {
@@ -68,20 +80,27 @@ export function AddPurchaseScreen() {
     }
   }, [batchId]);
 
-  const onSubmit = async (values: PurchaseFormValues) => {
+  const onSubmit = async (values: AdjustmentFormValues) => {
     if (!batchId) return;
     setSubmitError(null);
+    const signedQuantity = values.direction === "decrease" ? -values.quantity : values.quantity;
     try {
-      await getServices().inventory.recordPurchase({
+      await getServices().inventory.recordAdjustment({
         batchId,
-        quantity: values.quantity,
+        quantity: signedQuantity,
         unit: values.unit,
-        unitPrice: values.unitPrice,
+        reason: values.reason,
         date: parseFormDate(values.date),
       });
       navigation.goBack();
     } catch (e) {
-      setSubmitError(e instanceof Error ? e.message : "Failed to record purchase");
+      if (e instanceof InsufficientStockError) {
+        setSubmitError(
+          `That decrease is larger than the current stock: ${batch ? `${batch.quantity.toFixed(0)} tube(s) available` : "not enough in stock"}.`,
+        );
+      } else {
+        setSubmitError(e instanceof Error ? e.message : "Failed to record adjustment");
+      }
     }
   };
 
@@ -119,6 +138,19 @@ export function AddPurchaseScreen() {
 
         <Controller
           control={control}
+          name="direction"
+          render={({ field }) => (
+            <SegmentedControl
+              options={DIRECTION_OPTIONS}
+              value={field.value}
+              onChange={field.onChange}
+              style={styles.segmentSpacing}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
           name="unit"
           render={({ field }) => (
             <SegmentedControl
@@ -140,22 +172,24 @@ export function AddPurchaseScreen() {
               value={field.value ? String(field.value) : ""}
               onChangeText={(t) => field.onChange(t.replace(",", "."))}
               error={errors.quantity?.message}
-              placeholder="e.g. 30"
+              placeholder="e.g. 1"
             />
           )}
         />
 
         <Controller
           control={control}
-          name="unitPrice"
+          name="reason"
           render={({ field }) => (
             <TextField
-              label="Unit price"
-              keyboardType="decimal-pad"
-              value={field.value ? String(field.value) : ""}
-              onChangeText={(t) => field.onChange(t.replace(",", "."))}
-              error={errors.unitPrice?.message}
-              placeholder="e.g. 4500"
+              label="Reason (required)"
+              value={field.value}
+              onChangeText={field.onChange}
+              error={errors.reason?.message}
+              placeholder="e.g. Damaged in transit, recount correction…"
+              multiline
+              numberOfLines={2}
+              style={styles.reasonInput}
             />
           )}
         />
@@ -179,7 +213,7 @@ export function AddPurchaseScreen() {
           </Text>
         ) : null}
 
-        <Button label="Record Purchase" onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
+        <Button label="Save Adjustment" onPress={handleSubmit(onSubmit)} disabled={isSubmitting} />
       </ScrollView>
     </Screen>
   );
@@ -191,6 +225,10 @@ const styles = StyleSheet.create({
   },
   segmentSpacing: {
     marginBottom: spacing.md,
+  },
+  reasonInput: {
+    minHeight: 60,
+    textAlignVertical: "top",
   },
   submitError: {
     marginBottom: spacing.md,

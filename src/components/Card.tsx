@@ -3,7 +3,7 @@ import { StyleSheet, View, ViewStyle } from "react-native";
 import { colors, radius, spacing } from "@/constants/theme";
 
 interface CardProps {
-    style?: ViewStyle;
+  style?: ViewStyle;
 }
 
 export function Card({ children, style }: PropsWithChildren<CardProps>) {

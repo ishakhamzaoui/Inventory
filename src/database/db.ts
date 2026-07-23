@@ -10,10 +10,10 @@ const DB_NAME = "inventory.db";
 let dbInstance: SQLite.SQLiteDatabase | null = null;
 
 export function getDb(): SQLite.SQLiteDatabase {
-    if (!dbInstance) {
-        dbInstance = SQLite.openDatabaseSync(DB_NAME);
-    }
-    return dbInstance;
+  if (!dbInstance) {
+    dbInstance = SQLite.openDatabaseSync(DB_NAME);
+  }
+  return dbInstance;
 }
 
 const SCHEMA = `

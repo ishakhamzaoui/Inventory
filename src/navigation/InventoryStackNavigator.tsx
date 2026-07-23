@@ -6,6 +6,7 @@ import { BatchDetailsScreen } from "@/screens/BatchDetailsScreen";
 import { AddEditBatchScreen } from "@/screens/AddEditBatchScreen";
 import { AddPurchaseScreen } from "@/screens/AddPurchaseScreen";
 import { AddSaleScreen } from "@/screens/AddSaleScreen";
+import { AddAdjustmentScreen } from "@/screens/AddAdjustmentScreen";
 import type { InventoryStackParamList } from "@/navigation/types";
 
 const Stack = createNativeStackNavigator<InventoryStackParamList>();
@@ -40,6 +41,11 @@ export function InventoryStackNavigator() {
         options={{ title: "Add Purchase" }}
       />
       <Stack.Screen name="AddSale" component={AddSaleScreen} options={{ title: "Add Sale" }} />
+      <Stack.Screen
+        name="AddAdjustment"
+        component={AddAdjustmentScreen}
+        options={{ title: "Adjust Stock" }}
+      />
     </Stack.Navigator>
   );
 }

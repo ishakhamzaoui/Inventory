@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import { Text as RNText, TextStyle } from "react-native";
-import { colors, typography} from "@/constants/theme";
+import { colors, typography } from "@/constants/theme";
 
 type Variant = keyof typeof typography;
 

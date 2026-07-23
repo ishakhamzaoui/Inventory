@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, StyleSheet, ViewStyle } from "react-native";
-import{ colors, radius, spacing } from "@/constants/theme";
+import { colors, radius, spacing } from "@/constants/theme";
 import { Text } from "@/components/Typography";
 
 type Variant = "primary" | "secondary" | "danger";
@@ -33,7 +33,7 @@ export function Button({ label, onPress, variant = "primary", disabled, style }:
         {label}
       </Text>
     </Pressable>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
